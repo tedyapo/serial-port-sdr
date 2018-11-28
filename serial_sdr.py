@@ -36,9 +36,9 @@ def delta_sigma_1bit(data):
     chars = []
     err = 0
     for val in data:
-        err += 1 + val
-        if err > 2:
-            err -= 2
+        err += 2 + 2*val
+        if err > 4:
+            err -= 4
             chars.append(0x55)
         else:
             chars.append(0xff)
