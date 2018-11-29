@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""This module uses common USB-UART bridges as RF trasnmitters."""
+"""This module uses common USB-UART bridges as RF transmitters."""
 
 import argparse
 import time
@@ -64,7 +64,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('input_file',
                         help='audio file (wav format) to transmit')
-    parser.add_argument('port', help='serial port device name')
+    parser.add_argument('-p', '--port', help='serial port device name')
     parser.add_argument('-s', '--start_offset',
                         help='audio start point (seconds)',
                         type=float, default=0)
@@ -82,10 +82,12 @@ def main():
                         dest='loop', action='store_true')
     parser.add_argument('-d', '--delay', help='delay between loops',
                         dest='delay', type=float, default=1.)
+    parser.add_argument('-o', '--output_file', help='output file')
 
     args = parser.parse_args()
 
-    ser = serial.Serial(args.port, args.baud_rate)
+    if not args.output_file:
+        ser = serial.Serial(args.port, args.baud_rate)
 
     input_rate, data = scipy.io.wavfile.read(args.input_file)
 
@@ -120,15 +122,20 @@ def main():
         chars = delta_sigma_1bit(data)
     elif args.modulation == 'dsmulti':
         chars = delta_sigma_multivalue(data)
-
+    
     stream = bytes(chars)
 
-    if args.loop:
-        while True:
-            ser.write(stream)
-            time.sleep(args.delay)
+    if args.output_file:
+        outfile = open(args.output_file, 'wb')
+        outfile.write(stream)
+        outfile.close()
     else:
-        ser.write(stream)
+        if args.loop:
+            while True:
+                ser.write(stream)
+                time.sleep(args.delay)
+        else:
+            ser.write(stream)
 
 
 if __name__ == '__main__':
