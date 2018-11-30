@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """This module uses common USB-UART bridges as RF transmitters."""
 
+import sys
 import argparse
 import time
 import serial
@@ -61,7 +62,8 @@ def delta_sigma_multivalue(data):
 
 def main():
     """Transmit AM-modulated RF using serial port."""
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description='Transmit AM-modulated' +
+                                     ' RF using serial port')
     parser.add_argument('input_file',
                         help='audio file (wav format) to transmit')
     parser.add_argument('-p', '--port', help='serial port device name')
@@ -87,7 +89,13 @@ def main():
     args = parser.parse_args()
 
     if not args.output_file:
-        ser = serial.Serial(args.port, args.baud_rate)
+        if not args.port:
+            parser.print_help(sys.stderr)
+            sys.stderr.write('Error: either port or output ' +
+                             'file must be specified.\n')
+            sys.exit(-1)
+        else:
+            ser = serial.Serial(args.port, args.baud_rate)
 
     input_rate, data = scipy.io.wavfile.read(args.input_file)
 
@@ -122,7 +130,7 @@ def main():
         chars = delta_sigma_1bit(data)
     elif args.modulation == 'dsmulti':
         chars = delta_sigma_multivalue(data)
-    
+
     stream = bytes(chars)
 
     if args.output_file:
