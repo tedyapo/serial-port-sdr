@@ -1,5 +1,4 @@
-# serial-port-sdr
-Experimental software-defined radio using just a serial port
+# Experimental software-defined radio using a serial port
 
 This project creates an experimental radio-frequency transmitter from a modern serial port that uses a USB-UART bridge. These bridges allow very fast baud rates, allowing fundamental frequencies into the low MHz region to be generated.  The TTL-level output of some of the commonly available ICs has very fast edges, producing harmonics into the VHF region.
 
