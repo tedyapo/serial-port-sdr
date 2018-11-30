@@ -88,6 +88,8 @@ def main():
 
     args = parser.parse_args()
 
+    baud_rate = int(2*args.frequency)
+
     if not args.output_file:
         if not args.port:
             parser.print_help(sys.stderr)
@@ -95,7 +97,6 @@ def main():
                              'file must be specified.\n')
             sys.exit(-1)
         else:
-            baud_rate = int(2*args.frequency)
             ser = serial.Serial(args.port, baud_rate)
 
     input_rate, data = scipy.io.wavfile.read(args.input_file)
