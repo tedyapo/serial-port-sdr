@@ -74,8 +74,8 @@ def main():
                         type=float)
     parser.add_argument('-r', '--rate', help='audio resample rate',
                         dest='audio_rate', type=int, default=11025)
-    parser.add_argument('-b', '--baud', help='baud rate',
-                        dest='baud_rate', type=float, required=True)
+    parser.add_argument('-f', '--frequency', help='fundamental frequency',
+                        dest='frequency', type=float, required=True)
     parser.add_argument('-m', '--method', help='modulation method',
                         dest='modulation',
                         choices=['pdm', 'ds1bit', 'dsmulti'],
@@ -95,7 +95,8 @@ def main():
                              'file must be specified.\n')
             sys.exit(-1)
         else:
-            ser = serial.Serial(args.port, args.baud_rate)
+            baud_rate = int(2*args.frequency)
+            ser = serial.Serial(args.port, baud_rate)
 
     input_rate, data = scipy.io.wavfile.read(args.input_file)
 
@@ -116,8 +117,7 @@ def main():
         data = scipy.signal.resample_poly(data, args.audio_rate, input_rate)
 
     # resample again to the character rate (baudrate/10)
-    data = scipy.signal.resample_poly(data, int(args.baud_rate),
-                                      10*args.audio_rate)
+    data = scipy.signal.resample_poly(data, baud_rate, 10*args.audio_rate)
 
     # remove mean and scale to +/-1 amplitude
     data = data - np.mean(data)
