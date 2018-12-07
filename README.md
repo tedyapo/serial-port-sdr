@@ -55,6 +55,12 @@ optional arguments:
                         output file
 ```
 
+### Basic Example
+
+    ./serial_sdr_tx.py -f 1e6 -p /dev/ttyUSB0 -f 1e6 -l sample.wav
+
+This will transmit the sample audio file on 1MHz continuously.  If the audio is distorted, try the method below.
+
 ### Copying to serial ports directly
 
 For large audio files, transmitting the audio directly from the python code can cause some clicks and pops.  The root cause of this is unknown, but the issue can be avoided by writing the data stream to a file, then copying this file to the serial port.  The following applies to linux systems.
