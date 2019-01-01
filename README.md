@@ -27,7 +27,7 @@ The serial_sdr_tx.py program will generate an amplitude-modulated signal from an
 ```
 usage: serial_sdr_tx.py [-h] [-p PORT] [-s START_OFFSET] [-e END_OFFSET]
                         [-r AUDIO_RATE] -f FREQUENCY [-m {pdm,ds1bit,dsmulti}]
-                        [-l] [-d DELAY] [-o OUTPUT_FILE]
+                        [-l] [-n] [-d DELAY] [-o OUTPUT_FILE]
                         input_file
 
 Transmit AM-modulated RF using serial port
@@ -49,15 +49,17 @@ optional arguments:
   -m {pdm,ds1bit,dsmulti}, --method {pdm,ds1bit,dsmulti}
                         modulation method
   -l, --loop            transmit continuously
+  -n, --numba           accelerate with numba
   -d DELAY, --delay DELAY
                         delay between loops
   -o OUTPUT_FILE, --output_file OUTPUT_FILE
                         output file
+
 ```
 
 ### Basic Example
 
-    ./serial_sdr_tx.py -f 1e6 -p /dev/ttyUSB0 -f 1e6 -l sample.wav
+    ./serial_sdr_tx.py -f 1e6 -p /dev/ttyUSB0 -f 1e6 -l -n sample.wav
 
 This will transmit the sample audio file on 1MHz continuously.  If the audio is distorted, try the method below.
 
@@ -67,7 +69,7 @@ For large audio files, transmitting the audio directly from the python code can 
 
 First, create the AM modulated data and save it to a file, in this case, called 'test.dat':
 
-    ./serial_sdr_tx.py sample.wav -f 1e6 -m dsmulti -o test.dat
+    ./serial_sdr_tx.py sample.wav -f 1e6 -m dsmulti -n -o test.dat
     
 Next, set the serial port to 8N1 with the appropriate baud rate.  Note that the baud rate is *twice* the fundamental frequency.
 
