@@ -14,8 +14,8 @@ import scipy.signal
 # 0xf5 -_-_-_-----
 # 0xd5 -_-_-_-_---
 # 0x55 -_-_-_-_-_-
-CODES = [0xff, 0xfd, 0xf5, 0xd5, 0x55]
-LEVELS = [1, 2, 3, 4, 5]
+CODES = (0xff, 0xfd, 0xf5, 0xd5, 0x55)
+LEVELS = (1, 2, 3, 4, 5)
 
 
 # direct pulse-density modulation
@@ -82,11 +82,29 @@ def main():
                         default='dsmulti')
     parser.add_argument('-l', '--loop', help='transmit continuously',
                         dest='loop', action='store_true')
+    parser.add_argument('-n', '--numba', help='accelerate with numba',
+                        dest='numba', action='store_true')
     parser.add_argument('-d', '--delay', help='delay between loops',
                         dest='delay', type=float, default=1.)
     parser.add_argument('-o', '--output_file', help='output file')
 
     args = parser.parse_args()
+
+    if args.numba:
+        from numba import jit
+        dsm_func = jit(delta_sigma_multivalue,
+                       nopython=True,
+                       parallel=True)
+        ds1_func = jit(delta_sigma_1bit,
+                       nopython=True,
+                       parallel=True)
+        pdm_func = jit(pdm,
+                       nopython=True,
+                       parallel=True)
+    else:
+        dsm_func = delta_sigma_multivalue
+        ds1_func = delta_sigma_1bit
+        pdm_func = pdm
 
     baud_rate = int(2*args.frequency)
 
@@ -126,11 +144,11 @@ def main():
 
     # modulate
     if args.modulation == 'pdm':
-        chars = pdm(data)
+        chars = pdm_func(data)
     elif args.modulation == 'ds1bit':
-        chars = delta_sigma_1bit(data)
+        chars = ds1_func(data)
     elif args.modulation == 'dsmulti':
-        chars = delta_sigma_multivalue(data)
+        chars = dsm_func(data)
 
     stream = bytes(chars)
 
